@@ -58,7 +58,7 @@ word_freq_df <-
   data.frame(Word = names(word_freq), Frequency = as.numeric(word_freq))
 
 # Sort the data frame by frequency in descending order
-word_freq_df <- word_freq_df[order(-word_freq_df$Frequency), ]
+word_freq_df <- word_freq_df[order(-word_freq_df$Frequency),]
 
 your_word_df <- "[Dd]efective"
 rail_cleaned_data$word_count_df <-
@@ -87,4 +87,37 @@ data.frame(word_count_ranking, stringsAsFactors = TRUE)
 word_count_ranking <- data.frame(word_count_names, word_count_freq)
 
 
-word_count_ranking <- word_count_ranking[order(-word_count_ranking$word_count_freq), ]
+word_count_ranking <-
+  word_count_ranking[order(-word_count_ranking$word_count_freq),]
+
+library(ggplot2)
+ggplot(word_count_ranking,
+       aes(
+         x = reorder(word_count_names, -word_count_freq),
+         y = word_count_freq,
+         fill = word_count_names
+       )) +
+  geom_bar(stat = "identity") +
+  xlab("Words") +
+  ylab("Frequency") +
+  ggtitle("Word Frequency Ranking") +
+  theme_minimal()
+
+
+rail_cleaned_data$total_affected <-
+  rail_cleaned_data$Total.Persons.Injured +
+  rail_cleaned_data$Total.Persons.Killed
+
+top_five <- rail_cleaned_data[order(-rail_cleaned_data$total_affected), ]$State.Name[1:5]
+
+top_five <- rail_cleaned_data %>% 
+group_by(State.Name) %>%
+  summarize(total_affected = sum(total_affected)) %>%
+  arrange(desc(total_affected)) %>%
+  head(5)
+
+
+ggplot(top_five, aes(x = reorder(State.Name,-total_affected), y = total_affected, fill=total_affected)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Accident Rate by State", x = "State.Name", y = "total_affected") +
+  theme_minimal()
